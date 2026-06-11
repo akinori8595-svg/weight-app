@@ -159,8 +159,8 @@
   </div>
 
   <script>
-    // ⚠️ コピーした最新のGASのデプロイURLをここに貼り付けてください
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzTNk_kY70liK-5i2cjoADCPQz96QzQzkq2y9U6TfKzo8DBTQ3-r_h9uSqP7I9LHvmleQ/exec";
+    // ⚠️ 新しいデプロイURLをここに正確に貼り付けてください
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbydqr35U0TOu9ZzJLc_r64gvdz9UKVz-MZGH-KPEnHjk2HoWrOJkCQ_YfE4Os_HyyPA4Q/exec";
     const AI_AVATAR_FILENAME = "avatar.png"; 
 
     let isRybelsusTaken = false; let isAlcoholTaken = false; let selectedActivity = "なし";
@@ -377,7 +377,7 @@
     function updateChart(period) {
       if (!rawData || rawData.length === 0) return;
       let labels = []; let weights = [];
-      let activitiesShifted = []; let alcoholShifted = []; 
+      let activitiesShifted = []; let alcoholShifted = []; let rybelsusList = []; // 👈 リベルサス用の箱
       
       let sortedData = [...rawData].filter(d => d.date).sort((a, b) => new Date(a.date) - new Date(b.date));
       
@@ -386,12 +386,12 @@
         labels = recentData.map(d => { let date = new Date(d.date); return `${date.getMonth()+1}/${date.getDate()}`; }); 
         weights = recentData.map(d => d.weight);
         
-        // 🛠️【バグ完全防衛版・1日前シフト処理】
+        // 【タイムシフト＆マッピング処理】
         for (let i = 0; i < recentData.length; i++) {
           let activityEmoji = "なし";
           let drinkEmoji = "なし";
           
-          // 配列の境界外（i+1）を完全に安全にガード
+          // 1日前スライド（翌日のデータを今日のドットに引き継ぐ）
           if (i + 1 < recentData.length) {
             if (recentData[i + 1]) {
               activityEmoji = recentData[i + 1].activity || "なし";
@@ -401,9 +401,12 @@
           
           activitiesShifted.push(activityEmoji);
           alcoholShifted.push(drinkEmoji);
+          
+          // 当日プロット（スライドさせず、その日のデータをそのまま読み込む）
+          rybelsusList.push(recentData[i].rybelsus || "なし");
         }
       } else {
-        sortedData.forEach(() => { activitiesShifted.push("なし"); alcoholShifted.push("なし"); });
+        sortedData.forEach(() => { activitiesShifted.push("なし"); alcoholShifted.push("なし"); rybelsusList.push("なし"); });
         if (period === 'week') {
           let weeks = {}; sortedData.forEach(d => { let date = new Date(d.date); let weekKey = getWeekNumber(date); if (!weeks[weekKey]) weeks[weekKey] = { sum: 0, count: 0, label: `${date.getMonth()+1}/${date.getDate()}週` }; weeks[weekKey].sum += d.weight; weeks[weekKey].count++; });
           let keys = Object.keys(weeks).slice(-8); labels = keys.map(k => weeks[k].label); weights = keys.map(k => (weeks[k].sum / weeks[k].count).toFixed(1));
@@ -415,6 +418,7 @@
       
       const ctx = document.getElementById('weightChart').getContext('2d'); if (myChart) myChart.destroy();
       
+      // 🎨【トリプルアイコン・レンダリングギミック】
       const iconPlugin = {
         id: 'iconPlugin',
         afterDatasetsDraw(chart) {
@@ -425,20 +429,29 @@
             const point = meta.data[index];
             if (!point) return;
             
-            // chartのデータセットから直接安全に配列を読み込む
             const act = chart.data.datasets[0].activities[index];
             const alc = chart.data.datasets[0].alcohols[index];
+            const ryb = chart.data.datasets[0].rybelsusData[index]; // 👈 リベルサスデータの取得
             
             ctx.save();
             ctx.font = '13px Arial';
             ctx.textAlign = 'center';
             
+            // 1. 【上段】前日のアクティビティ (y - 7)
             if (act && act !== 'なし') {
               const emoji = activityEmojis[act] || '';
               ctx.textBaseline = 'bottom';
               ctx.fillText(emoji, point.x, point.y - 7);
             }
             
+            // 2. 【上々段】当日のリベルサス (アクティビティがある場合は y - 22、ない場合は y - 7 にして重ねる)
+            if (ryb && (ryb === '服用' || ryb === '服用した')) {
+              ctx.textBaseline = 'bottom';
+              const offset = (act && act !== 'なし') ? 22 : 7;
+              ctx.fillText('💊', point.x, point.y - offset);
+            }
+            
+            // 3. 【下段】前夜の晩酌 (y + 7)
             if (alc && (alc === '晩酌あり' || alc === '晩酌フラグ')) {
               ctx.textBaseline = 'top';
               ctx.fillText('🍺', point.x, point.y + 7);
@@ -458,6 +471,7 @@
             data: weights, 
             activities: activitiesShifted, 
             alcohols: alcoholShifted,     
+            rybelsusData: rybelsusList, // 👈 データを Chart.js に渡す
             borderColor: '#10b981', 
             backgroundColor: 'rgba(52, 211, 153, 0.15)', 
             borderWidth: 3, 
@@ -467,7 +481,7 @@
             pointBackgroundColor: '#10b981' 
           }] 
         }, 
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#f1f5f9' }, ticks: { color: '#64748b' }, grace: '8%' }, x: { grid: { display: false }, ticks: { color: '#64748b' } } } },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#f1f5f9' }, ticks: { color: '#64748b' }, grace: '10%' }, x: { grid: { display: false }, ticks: { color: '#64748b' } } } },
         plugins: [iconPlugin]
       });
     }

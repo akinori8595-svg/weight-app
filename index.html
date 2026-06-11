@@ -10,60 +10,40 @@
     :root { 
       --primary: #34d399; --primary-dark: #059669; --bg: #f0fdf4; --card: #ffffff; 
       --text: #1e293b; --text-muted: #64748b; --border: #e2e8f0; --pill-bg: #f1f5f9;
-      --alcohol: #60a5fa; --alcohol-dark: #2563eb;
+      --alcohol: #60a5fa; --alcohol-dark: #2563eb; --activity: #a855f7;
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    
-    body { 
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-      background: var(--bg); color: var(--text); margin: 0; padding: 12px;
-      display: flex; justify-content: center; min-height: 100vh;
-    }
-    
-    /* どのデバイスでも横幅がいっぱいにならないよう、外枠を滑らかにレスポンシブ化 */
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 12px; display: flex; justify-content: center; min-height: 100vh; }
     .container { width: 100%; max-width: 480px; margin: 0 auto; padding-bottom: 40px; }
     
-    .user-avatar { 
-      margin: 10px 0; transition: all 0.3s ease; display: inline-block; 
-      width: 110px; height: 110px; border-radius: 50%;
-      box-shadow: 0 10px 25px rgba(5, 150, 105, 0.08); border: 2px solid var(--border);
-      overflow: hidden; background: #ffffff;
-    }
+    .user-avatar { margin: 10px 0; transition: all 0.3s ease; display: inline-block; width: 110px; height: 110px; border-radius: 50%; box-shadow: 0 10px 25px rgba(5, 150, 105, 0.08); border: 2px solid var(--border); overflow: hidden; background: #ffffff; }
     .user-avatar i { font-size: 55px; color: var(--primary-dark); line-height: 115px; }
     .user-avatar img { width: 100%; height: 100%; object-fit: cover; display: none; }
     .user-avatar.recording { filter: drop-shadow(0 0 15px rgba(52, 211, 153, 0.6)); transform: scale(1.05); border-color: var(--primary); }
     
-    /* パネル類をスマホの指でタップしやすいサイズに最適化 */
-    .control-panel, .chart-panel, .history-panel { 
-      background: var(--card); padding: 18px; border-radius: 20px; 
-      border: 1px solid var(--border); margin-bottom: 16px; text-align: left; 
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02); 
-    }
+    .control-panel, .chart-panel, .history-panel { background: var(--card); padding: 18px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 16px; text-align: left; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02); }
     .param-group { margin-bottom: 14px; text-align: left; }
     .param-row { display: flex; gap: 10px; }
     .param-sub { flex: 1; }
     
     label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--text-muted); }
-    select, button.toggle-btn { 
-      width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border); 
-      background: #f8fafc; color: var(--text); font-size: 14px; cursor: pointer; 
-      outline: none; font-weight: 500; -webkit-appearance: none; transition: all 0.2s;
-    }
-    select { 
-      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>"); 
-      background-repeat: no-repeat; background-position: right 12px center; background-size: 14px; padding-right: 36px; 
-    }
+    select, button.toggle-btn { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: #f8fafc; color: var(--text); font-size: 14px; cursor: pointer; outline: none; font-weight: 500; -webkit-appearance: none; transition: all 0.2s; }
+    select { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>"); background-repeat: no-repeat; background-position: right 12px center; background-size: 14px; padding-right: 36px; }
     
     button.toggle-btn.active-ry { background: #d1fae5; color: var(--primary-dark); font-weight: bold; border-color: var(--primary); }
     button.toggle-btn.active-al { background: #dbeafe; color: var(--alcohol-dark); font-weight: bold; border-color: var(--alcohol); }
     
-    /* マイクボタンを押しやすく大きく、押し補正を追加 */
+    /* 🏃 アクティビティ選択用の横スライド式おしゃれボタン */
+    .activity-selector { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .activity-selector::-webkit-scrollbar { display: none; }
+    .activity-chip { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 68px; height: 68px; border-radius: 14px; border: 1px solid var(--border); background: #f8fafc; cursor: pointer; transition: all 0.2s; gap: 4px; }
+    .activity-chip i { font-size: 18px; color: var(--text-muted); }
+    .activity-chip span { font-size: 10px; font-weight: bold; color: var(--text-muted); }
+    .activity-chip.active { background: #f3e8ff; border-color: var(--activity); }
+    .activity-chip.active i, .activity-chip.active span { color: var(--activity); }
+
     .mic-section { margin: 15px 0; text-align: center; }
-    .mic-btn { 
-      width: 80px; height: 80px; border-radius: 50%; border: none; 
-      background: var(--primary); color: #ffffff; font-size: 28px; cursor: pointer; 
-      box-shadow: 0 8px 25px rgba(52, 211, 153, 0.3); outline: none; transition: all 0.2s;
-    }
+    .mic-btn { width: 80px; height: 80px; border-radius: 50%; border: none; background: var(--primary); color: #ffffff; font-size: 28px; cursor: pointer; box-shadow: 0 8px 25px rgba(52, 211, 153, 0.3); outline: none; transition: all 0.2s; }
     .mic-btn:active { transform: scale(0.95); }
     .mic-btn.recording-state { background: #fee2e2; color: #ef4444; box-shadow: 0 8px 25px rgba(239, 68, 68, 0.15); }
     
@@ -75,22 +55,16 @@
     .tab-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: #f8fafc; color: var(--text-muted); cursor: pointer; font-size: 13px; font-weight: 500; }
     .tab-btn.active { background: var(--primary-dark); color: #ffffff; font-weight: bold; border-color: var(--primary-dark); }
     
-    /* チャートの高さをスマホで見やすい200pxに固定 */
-    .chart-container { position: relative; width: 100%; height: 200px; }
-    
-    /* 履歴リストのスマホ最適化（スクロールしやすく、パーツをスッキリ配置） */
+    .chart-container { position: relative; width: 100%; height: 210px; }
     .history-list { max-height: 280px; overflow-y: auto; padding-right: 2px; }
-    .history-item { 
-      display: flex; justify-content: space-between; align-items: center; 
-      background: #f8fafc; padding: 10px 14px; border-radius: 14px; 
-      margin-bottom: 8px; border: 1px solid var(--border); 
-    }
+    .history-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px 14px; border-radius: 14px; margin-bottom: 8px; border: 1px solid var(--border); }
     .item-main { display: flex; flex-direction: column; gap: 4px; }
     .item-meta { font-size: 11px; color: var(--text-muted); }
     .item-tags { display: flex; gap: 4px; font-size: 10px; flex-wrap: wrap; }
     .tag-pill { background: #e2e8f0; color: var(--text-muted); padding: 2px 6px; border-radius: 5px; font-weight: 500; }
     .tag-pill.active-pill-ry { background: #d1fae5; color: var(--primary-dark); }
     .tag-pill.active-pill-al { background: #dbeafe; color: var(--alcohol-dark); }
+    .tag-pill.active-pill-ac { background: #f3e8ff; color: var(--activity); }
     .item-values { text-align: right; margin-right: 10px; margin-left: auto; }
     .weight-val { font-size: 17px; font-weight: bold; color: var(--text); }
     .bmi-val { font-size: 11px; color: var(--text-muted); }
@@ -129,6 +103,20 @@
           <option value="夜 (入浴後)">夜 (入浴後)</option>
         </select>
       </div>
+
+      <!-- 🏃 前日のアクティビティ選択エリアを追加 -->
+      <div class="param-group">
+        <label><i class="fa-solid fa-person-running"></i> 前日のアクティビティ</label>
+        <div class="activity-selector">
+          <div class="activity-chip active" onclick="selectActivity('なし', this)"><i class="fa-solid fa-minus"></i><span>なし</span></div>
+          <div class="activity-chip" onclick="selectActivity('テニス', this)"><i class="fa-solid fa-baseball-bat-ball"></i><span>テニス</span></div>
+          <div class="activity-chip" onclick="selectActivity('バスケ', this)"><i class="fa-solid fa-basketball"></i><span>バスケ</span></div>
+          <div class="activity-chip" onclick="selectActivity('ランニング', this)"><i class="fa-solid fa-person-running"></i><span>ラン</span></div>
+          <div class="activity-chip" onclick="selectActivity('ハイキング', this)"><i class="fa-solid fa-mountain-sun"></i><span>ハイク</span></div>
+          <div class="activity-chip" onclick="selectActivity('スキー', this)"><i class="fa-solid fa-person-skiing"></i><span>スキー</span></div>
+          <div class="activity-chip" onclick="selectActivity('その他', this)"><i class="fa-solid fa-star"></i><span>その他</span></div>
+        </div>
+      </div>
     </div>
 
     <div class="mic-section">
@@ -153,12 +141,14 @@
   </div>
 
   <script>
-    // ⚠️【必須】最新の「全員」対象のGASのURLを正確に貼り付けてください
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzo4bZ1NN_ve_aqTNRB3o1VrGw571-lfn540qvLA6xtWTS54LyPd8XHFwgEjCuhSz6rXw/exec";
-
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwwHDFZ6rIUkVIpDdFCqUrwHcNCR4kI1547DfI1lQjOSf3UI_BwYMFpEBRjdQIm8SXNGQ/exec";
     const AI_AVATAR_FILENAME = "avatar.png"; 
 
-    let isRybelsusTaken = false; let isAlcoholTaken = false; let recognition = null; let rawData = []; let myChart = null;
+    let isRybelsusTaken = false; let isAlcoholTaken = false; let selectedActivity = "なし";
+    let recognition = null; let rawData = []; let myChart = null;
+
+    // グラフ表示用の絵文字変換マップ
+    const activityEmojis = { 'テニス': '🎾', 'バスケ': '🏀', 'ランニング': '🏃', 'ハイキング': '🥾', 'スキー': '⛷️', 'その他': '⭐', 'なし': '' };
 
     window.onload = () => { 
       if(AI_AVATAR_FILENAME) {
@@ -168,11 +158,7 @@
         img.style.display = 'block';
       }
       fetchChartData(); 
-      
-      // 🔥【iPhone対策】画面読み込み時に、ブラウザの音声のミュート（ロック）を一瞬だけ優しく解放する処理
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
+      if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); }
     };
 
     function toggleRybelsus() {
@@ -189,14 +175,18 @@
       btn.classList.toggle('active-al', isAlcoholTaken);
     }
 
+    function selectActivity(activity, element) {
+      selectedActivity = activity;
+      document.querySelectorAll('.activity-chip').forEach(chip => chip.classList.remove('active'));
+      element.classList.add('active');
+    }
+
     function sendToGas(payload) {
       fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) })
-      .then(res => { if (!res.ok) { throw new Error('HTTPエラー: ' + res.status); } return res.json(); })
+      .then(res => res.json())
       .then(data => { 
         if(data.status === "success") { 
-          resultDiv.innerText = data.message; 
-          speak(data.message); 
-          fetchChartData(); 
+          resultDiv.innerText = data.message; speak(data.message); fetchChartData(); 
           statusDiv.innerText = "データ保存完了！";
         } else { statusDiv.innerText = "GASエラー: " + data.message; } 
       })
@@ -230,7 +220,10 @@
         let dateStr = `${date.getMonth()+1}/${date.getDate()} ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
         let ryPill = item.rybelsus === "服用" ? `<span class="tag-pill active-pill-ry">リベルサス</span>` : '';
         let alPill = item.alcohol === "晩酌あり" ? `<span class="tag-pill active-pill-al">晩酌あり</span>` : '';
-        html += `<div class="history-item"><div class="item-main"><div class="item-meta">${dateStr}</div><div class="item-tags"><span class="tag-pill">${item.timing}</span>${ryPill}${alPill}</div></div><div class="item-values"><div class="weight-val">${item.weight.toFixed(1)}<span style="font-size:11px; font-weight:normal; color:var(--text-muted);"> kg</span></div><div class="bmi-val">BMI ${item.bmi.toFixed(1)}</div></div><button class="delete-btn" onclick="deleteRecord(${item.rowNum}, ${item.weight})"><i class="fa-solid fa-trash-can"></i></button></div>`;
+        // 🏃 履歴行にアクティビティタグを追加
+        let acPill = (item.activity && item.activity !== "なし") ? `<span class="tag-pill active-pill-ac">${activityEmojis[item.activity] || ''} ${item.activity}</span>` : '';
+        
+        html += `<div class="history-item"><div class="item-main"><div class="item-meta">${dateStr}</div><div class="item-tags"><span class="tag-pill">${item.timing}</span>${ryPill}${alPill}${acPill}</div></div><div class="item-values"><div class="weight-val">${item.weight.toFixed(1)}<span style="font-size:11px; font-weight:normal; color:var(--text-muted);"> kg</span></div><div class="bmi-val">BMI ${item.bmi.toFixed(1)}</div></div><button class="delete-btn" onclick="deleteRecord(${item.rowNum}, ${item.weight})"><i class="fa-solid fa-trash-can"></i></button></div>`;
       });
       listDiv.innerHTML = html;
     }
@@ -245,17 +238,79 @@
 
     function updateChart(period) {
       if (rawData.length === 0) return;
-      let labels = []; let weights = []; let sortedData = [...rawData].filter(d => d.date).sort((a, b) => new Date(a.date) - new Date(b.date));
-      if (period === 'day') { let recentData = sortedData.slice(-14); labels = recentData.map(d => { let date = new Date(d.date); return `${date.getMonth()+1}/${date.getDate()}`; }); weights = recentData.map(d => d.weight); }
-      else if (period === 'week') {
+      let labels = []; let weights = []; let activities = []; 
+      let sortedData = [...rawData].filter(d => d.date).sort((a, b) => new Date(a.date) - new Date(b.date));
+      
+      if (period === 'day') { 
+        let recentData = sortedData.slice(-14); 
+        labels = recentData.map(d => { let date = new Date(d.date); return `${date.getMonth()+1}/${date.getDate()}`; }); 
+        weights = recentData.map(d => d.weight);
+        activities = recentData.map(d => d.activity || "なし"); // 日毎のアクティビティを取得
+      } else if (period === 'week') {
         let weeks = {}; sortedData.forEach(d => { let date = new Date(d.date); let weekKey = getWeekNumber(date); if (!weeks[weekKey]) weeks[weekKey] = { sum: 0, count: 0, label: `${date.getMonth()+1}/${date.getDate()}週` }; weeks[weekKey].sum += d.weight; weeks[weekKey].count++; });
         let keys = Object.keys(weeks).slice(-8); labels = keys.map(k => weeks[k].label); weights = keys.map(k => (weeks[k].sum / weeks[k].count).toFixed(1));
+        activities = keys.map(() => "なし"); // 週表示ではアイコン非表示
       } else if (period === 'month') {
         let months = {}; sortedData.forEach(d => { let date = new Date(d.date); let monthKey = `${date.getFullYear()}-${date.getMonth()+1}`; if (!months[monthKey]) months[monthKey] = { sum: 0, count: 0, label: `${date.getMonth()+1}月` }; months[monthKey].sum += d.weight; months[monthKey].count++; });
         let keys = Object.keys(months).slice(-6); labels = keys.map(k => months[k].label); weights = keys.map(k => (months[k].sum / months[k].count).toFixed(1));
+        activities = keys.map(() => "なし"); // 月表示ではアイコン非表示
       }
+      
       const ctx = document.getElementById('weightChart').getContext('2d'); if (myChart) myChart.destroy();
-      myChart = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: '体重 (kg)', data: weights, borderColor: '#10b981', backgroundColor: 'rgba(52, 211, 153, 0.15)', borderWidth: 3, fill: true, tension: 0.3, pointRadius: 4, pointBackgroundColor: '#10b981' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#f1f5f9' }, ticks: { color: '#64748b' } }, x: { grid: { display: false }, ticks: { color: '#64748b' } } } } });
+      
+      // 🔥【大技ギミック】Chart.jsのドットの上にアクティビティの絵文字（アイコン）を描画するプラグイン
+      const iconPlugin = {
+        id: 'iconPlugin',
+        afterDatasetsDraw(chart) {
+          const { ctx, scales: { x, y } } = chart;
+          chart.data.datasets[0].data.forEach((value, index) => {
+            const act = chart.data.datasets[0].activities[index];
+            if (act && act !== 'なし') {
+              const emoji = activityEmojis[act] || '';
+              const meta = chart.getDatasetMeta(0);
+              const point = meta.data[index];
+              if (point) {
+                ctx.save();
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                // 点の少し上(y - 8)に絵文字を描画
+                ctx.fillText(emoji, point.x, point.y - 8);
+                ctx.restore();
+              }
+            }
+          });
+        }
+      };
+
+      myChart = new Chart(ctx, { 
+        type: 'line', 
+        data: { 
+          labels: labels, 
+          datasets: [{ 
+            label: '体重 (kg)', 
+            data: weights, 
+            activities: activities, // 👈 カスタムデータを追加
+            borderColor: '#10b981', 
+            backgroundColor: 'rgba(52, 211, 153, 0.15)', 
+            borderWidth: 3, 
+            fill: true, 
+            tension: 0.3, 
+            pointRadius: (period === 'day') ? 5 : 4, // 日単位の時は少しドットを大きく
+            pointBackgroundColor: '#10b981' 
+          }] 
+        }, 
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false, 
+          plugins: { legend: { display: false } }, 
+          scales: { 
+            y: { grid: { color: '#f1f5f9' }, ticks: { color: '#64748b' }, grace: '5%' }, 
+            x: { grid: { display: false }, ticks: { color: '#64748b' } } 
+          } 
+        },
+        plugins: [iconPlugin] // 👈 ギミックプラグインを登録
+      });
     }
 
     function getWeekNumber(d) { let date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay()||7)); let yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1)); return `${date.getUTCFullYear()}-W${Math.ceil((((date - yearStart) / 86400000) + 1) / 7)}`; }
@@ -263,87 +318,32 @@
     const statusDiv = document.getElementById('status');
     const resultDiv = document.getElementById('result');
 
-    // 🔥【iPhone最重要対策】タップイベント（onclick）の中で「直接」音声認識オブジェクトを初期化・起動させます
     micBtn.onclick = (e) => {
-      // 連打による多重起動を防止
       e.preventDefault();
-
-      if (recognition) { 
-        recognition.stop(); 
-        return; 
-      }
-      
+      if (recognition) { recognition.stop(); return; }
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) { 
-        statusDiv.innerText = "ブラウザが音声認識に対応していません"; 
-        return; 
-      }
+      if (!SpeechRecognition) { statusDiv.innerText = "ブラウザ非対応"; return; }
       
-      // 必ずタップされた瞬間の「この関数内」でインスタンスを作ります（iOSセキュリティ突破の鍵）
-      recognition = new SpeechRecognition(); 
-      recognition.lang = 'ja-JP';
-      
-      // iPhoneの途切れ対策：無音状態でも少し長めに待つ設定
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-      
-      recognition.onstart = () => { 
-        micBtn.classList.add('recording-state'); 
-        micIcon.className = "fa-solid fa-microphone-lines"; 
-        avatar.classList.add('recording'); 
-        statusDiv.innerText = "お話しください...\n例：「65.5キロ」「65.5」"; 
-      };
-      
-      recognition.onend = () => { 
-        micBtn.classList.remove('recording-state'); 
-        micIcon.className = "fa-solid fa-microphone"; 
-        avatar.classList.remove('recording'); 
-        recognition = null; 
-      };
-      
-      recognition.onerror = (err) => {
-        console.error("音声認識エラー:", err.error);
-        if(err.error === 'not-allowed') {
-          statusDiv.innerText = "マイクへのアクセスが拒否されています。\nSafariの設定やアドレスバーの鍵マークを確認してください。";
-        } else {
-          statusDiv.innerText = "聞き取りに失敗しました。もう一度お試しください。";
-        }
-      };
-      
+      recognition = new SpeechRecognition(); recognition.lang = 'ja-JP';
+      recognition.onstart = () => { micBtn.classList.add('recording-state'); micIcon.className = "fa-solid fa-microphone-lines"; avatar.classList.add('recording'); statusDiv.innerText = "聞き取り中...\n「65.5」のように話してください"; };
+      recognition.onend = () => { micBtn.classList.remove('recording-state'); micIcon.className = "fa-solid fa-microphone"; avatar.classList.remove('recording'); recognition = null; };
       recognition.onresult = (event) => {
-        const text = event.results[0][0].transcript;
-        const weight = cleanAndExtractNumber(text);
-        
+        const text = event.results[0][0].transcript; const weight = cleanAndExtractNumber(text);
         if (weight !== null) {
-          statusDiv.innerText = `認識: 「${text}」\n➔ 送信中...`;
+          statusDiv.innerText = `音声認識: 「${text}」\n➔ 保存中...`;
           sendToGas({ 
             weight: weight, 
             rybelsus: isRybelsusTaken, 
             alcohol: isAlcoholTaken, 
-            timing: document.getElementById('timing').value 
+            timing: document.getElementById('timing').value,
+            activity: selectedActivity // 👈 新パラメーターを送信
           });
-        } else {
-          statusDiv.innerText = `認識: 「${text}」\n⚠️数値がうまく読み取れませんでした。`;
-        }
+        } else { statusDiv.innerText = `音声認識: 「${text}」\n⚠️数値が読み取れませんでした。`; }
       };
-      
-      // ユーザーのタップ直後に即スタート
-      try {
-        recognition.start();
-      } catch(err) {
-        statusDiv.innerText = "起動エラー: " + err.message;
-      }
+      recognition.start();
     };
 
-    function speak(text) { 
-      if ('speechSynthesis' in window) { 
-        window.speechSynthesis.cancel(); 
-        const u = new SpeechSynthesisUtterance(text); 
-        u.lang = 'ja-JP'; 
-        // iOSでは音声合成もユーザー操作直後のみ許可されるため、データ受信時の発話が制限される場合があります
-        window.speechSynthesis.speak(u); 
-      } 
-    }
+    function speak(text) { if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); const u = new SynthesisUtterance(text); u.lang = 'ja-JP'; window.speechSynthesis.speak(u); } }
   </script>
 </body>
 </html>

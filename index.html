@@ -54,7 +54,7 @@
     .tab-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: #f8fafc; color: var(--text-muted); cursor: pointer; font-size: 13px; font-weight: 500; }
     .tab-btn.active { background: var(--primary-dark); color: #ffffff; font-weight: bold; border-color: var(--primary-dark); }
     
-    .chart-container { position: relative; width: 100%; height: 210px; }
+    .chart-container { position: relative; width: 100%; height: 215px; }
     .history-list { max-height: 340px; overflow-y: auto; padding-right: 2px; }
     
     .history-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px 12px; border-radius: 14px; margin-bottom: 8px; border: 1px solid var(--border); transition: background 0.2s; }
@@ -117,7 +117,7 @@
           <option value="朝食後">朝食後</option>
           <option value="昼">昼</option>
           <option value="夕食前">夕食前</option>
-          <option value="夕食後">夕食後</option>
+          <option value="夕食后">夕食後</option>
           <option value="夜 (入浴前)">夜 (入浴前)</option>
           <option value="夜 (入浴後)">夜 (入浴後)</option>
         </select>
@@ -127,7 +127,7 @@
         <label><i class="fa-solid fa-person-running"></i> 前日のアクティビティ</label>
         <div class="activity-selector">
           <div class="activity-chip active" onclick="selectActivity('なし', this)"><i class="fa-solid fa-minus"></i><span>なし</span></div>
-          <div class="activity-chip" onclick="selectActivity('テニス', this)"><i class="fa-solid fa-tennis-ball"></i><span>テニス</span></div>
+          <div class="activity-chip" onclick="selectActivity('テニス', this)"><i class="fa-solid fa-table-tennis-paddle-ball"></i><span>テニス</span></div>
           <div class="activity-chip" onclick="selectActivity('バスケ', this)"><i class="fa-solid fa-basketball"></i><span>バスケ</span></div>
           <div class="activity-chip" onclick="selectActivity('ランニング', this)"><i class="fa-solid fa-person-running"></i><span>ラン</span></div>
           <div class="activity-chip" onclick="selectActivity('ハイキング', this)"><i class="fa-solid fa-mountain-sun"></i><span>ハイク</span></div>
@@ -159,7 +159,7 @@
   </div>
 
   <script>
-    // ⚠️ 新しいデプロイURLに書き換えてください
+    // ⚠️ AkiさんのいつものGASデプロイURLをここに貼り付けてください
     const GAS_URL = "https://script.google.com/macros/s/AKfycbw145UaHNqnFsfbZ2f696IM8pG7rPs8QUu4EZj3w-RecyGoVZRpYBqt4XK6zFA4QKgQ_Q/exec";
     const AI_AVATAR_FILENAME = "avatar.png"; 
 
@@ -238,7 +238,6 @@
         if (!item.date) return;
         let date = new Date(item.date);
         
-        // 💡 日本時間の datetime-local用文字列をバグなしで生成する安全な処理
         let year = date.getFullYear();
         let month = String(date.getMonth() + 1).padStart(2, '0');
         let day = String(date.getDate()).padStart(2, '0');
@@ -276,7 +275,6 @@
       const itemDiv = document.getElementById(`item-${rowNum}`);
       itemDiv.classList.add('editing-mode');
       
-      // 文字列のブレを完全に統一
       if(rybelsus !== "服用") rybelsus = "なし";
       if(alcohol !== "晩酌あり") alcohol = "なし";
       if(!activity || activity === "undefined") activity = "なし";
@@ -308,160 +306,4 @@
               <option value="なし" ${alcohol==='なし'?'selected':''}>なし</option>
             </select>
             
-            <select id="edit-ac-${rowNum}">
-              <option value="なし" ${activity==='なし'?'selected':''}>🏃 なし</option>
-              <option value="テニス" ${activity==='テニス'?'selected':''}>🎾 テニス</option>
-              <option value="バスケ" ${activity==='バスケ'?'selected':''}>🏀 バスケ</option>
-              <option value="ランニング" ${activity==='ランニング'?'selected':''}>🏃 ラン</option>
-              <option value="ハイキング" ${activity==='ハイキング'?'selected':''}>🥾 ハイク</option>
-              <option value="スキー" ${activity==='スキー'?'selected':''}>⛷️ スキー</option>
-              <option value="その他" ${activity==='その他'?'selected':''}>⭐ その他</option>
-            </select>
-          </div>
-          <div class="edit-form-actions">
-            <button class="btn-cancel" onclick="fetchChartData()">キャンセル</button>
-            <button class="btn-save" onclick="saveEdit(${rowNum})">保存する</button>
-          </div>
-        </div>
-      `;
-    }
-
-    function saveEdit(rowNum) {
-      const dateVal = document.getElementById(`edit-date-${rowNum}`).value;
-      const weightVal = parseFloat(document.getElementById(`edit-weight-${rowNum}`).value);
-      const timingVal = document.getElementById(`edit-timing-${rowNum}`).value;
-      const ryVal = document.getElementById(`edit-ry-${rowNum}`).value;
-      const alVal = document.getElementById(`edit-al-${rowNum}`).value;
-      const acVal = document.getElementById(`edit-ac-${rowNum}`).value;
-
-      if (!dateVal || isNaN(weightVal)) { alert("日付と体重を正しく入力してください。"); return; }
-
-      document.getElementById(`item-${rowNum}`).innerText = "更新中...";
-
-      const updatePayload = {
-        type: "update",
-        rowNum: rowNum,
-        date: new Date(dateVal).toISOString(),
-        weight: weightVal,
-        timing: timingVal,
-        rybelsus: ryVal,
-        alcohol: alVal,
-        activity: acVal
-      };
-
-      fetch(GAS_URL, { method: "POST", body: JSON.stringify(updatePayload) })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === "success") { fetchChartData(); } else { alert("更新失敗: " + data.message); fetchChartData(); }
-      })
-      .catch(err => { alert("通信エラーが発生しました"); fetchChartData(); });
-    }
-
-    function deleteRecord(rowNum, weight) {
-      if (!confirm(`体重 ${weight}kg の記録を本当に削除しますか？`)) return;
-      document.getElementById('historyList').innerText = "削除処理中...";
-      fetch(GAS_URL, { method: "POST", body: JSON.stringify({ type: "delete", rowNum: rowNum }) }).then(res => res.json()).then(data => { if (data.status === "success") { fetchChartData(); } else { alert("削除失敗: " + data.message); } }).catch(err => alert("通信エラー"));
-    }
-
-    function changePeriod(period) { 
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active')); 
-      if (event && event.target) { event.target.classList.add('active'); }
-      updateChart(period); 
-    }
-
-    function updateChart(period) {
-      if (!rawData || rawData.length === 0) return;
-      let labels = []; let weights = []; let activities = []; 
-      let sortedData = [...rawData].filter(d => d.date).sort((a, b) => new Date(a.date) - new Date(b.date));
-      
-      if (period === 'day') { 
-        let recentData = sortedData.slice(-14); 
-        labels = recentData.map(d => { let date = new Date(d.date); return `${date.getMonth()+1}/${date.getDate()}`; }); 
-        weights = recentData.map(d => d.weight);
-        activities = recentData.map(d => d.activity || "なし");
-      } else if (period === 'week') {
-        let weeks = {}; sortedData.forEach(d => { let date = new Date(d.date); let weekKey = getWeekNumber(date); if (!weeks[weekKey]) weeks[weekKey] = { sum: 0, count: 0, label: `${date.getMonth()+1}/${date.getDate()}週` }; weeks[weekKey].sum += d.weight; weeks[weekKey].count++; });
-        let keys = Object.keys(weeks).slice(-8); labels = keys.map(k => weeks[k].label); weights = keys.map(k => (weeks[k].sum / weeks[k].count).toFixed(1));
-        activities = keys.map(() => "なし");
-      } else if (period === 'month') {
-        let months = {}; sortedData.forEach(d => { let date = new Date(d.date); let monthKey = `${date.getFullYear()}-${date.getMonth()+1}`; if (!months[monthKey]) months[monthKey] = { sum: 0, count: 0, label: `${date.getMonth()+1}月` }; months[monthKey].sum += d.weight; months[monthKey].count++; });
-        let keys = Object.keys(months).slice(-6); labels = keys.map(k => months[k].label); weights = keys.map(k => (months[k].sum / months[k].count).toFixed(1));
-        activities = keys.map(() => "なし");
-      }
-      
-      const ctx = document.getElementById('weightChart').getContext('2d'); if (myChart) myChart.destroy();
-      
-      const iconPlugin = {
-        id: 'iconPlugin',
-        afterDatasetsDraw(chart) {
-          const { ctx } = chart;
-          chart.data.datasets[0].data.forEach((value, index) => {
-            const act = chart.data.datasets[0].activities[index];
-            if (act && act !== 'なし') {
-              const emoji = activityEmojis[act] || '';
-              const meta = chart.getDatasetMeta(0);
-              const point = meta.data[index];
-              if (point) {
-                ctx.save(); ctx.font = '14px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-                ctx.fillText(emoji, point.x, point.y - 8); ctx.restore();
-              }
-            }
-          });
-        }
-      };
-
-      myChart = new Chart(ctx, { 
-        type: 'line', 
-        data: { 
-          labels: labels, 
-          datasets: [{ 
-            label: '体重 (kg)', 
-            data: weights, 
-            activities: activities, 
-            borderColor: '#10b981', 
-            backgroundColor: 'rgba(52, 211, 153, 0.15)', 
-            borderWidth: 3, 
-            fill: true, 
-            tension: 0.3, 
-            pointRadius: (period === 'day') ? 5 : 4, 
-            pointBackgroundColor: '#10b981' 
-          }] 
-        }, 
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#f1f5f9' }, ticks: { color: '#64748b' }, grace: '5%' }, x: { grid: { display: false }, ticks: { color: '#64748b' } } } },
-        plugins: [iconPlugin]
-      });
-    }
-
-    function getWeekNumber(d) { let date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay()||7)); let yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1)); return `${date.getUTCFullYear()}-W${Math.ceil((((date - yearStart) / 86400000) + 1) / 7)}`; }
-
-    const statusDiv = document.getElementById('status');
-    const resultDiv = document.getElementById('result');
-
-    micBtn.onclick = (e) => {
-      e.preventDefault(); if (recognition) { recognition.stop(); return; }
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) { statusDiv.innerText = "ブラウザ非対応"; return; }
-      
-      recognition = new SpeechRecognition(); recognition.lang = 'ja-JP';
-      recognition.onstart = () => { micBtn.classList.add('recording-state'); micIcon.className = "fa-solid fa-microphone-lines"; avatar.classList.add('recording'); statusDiv.innerText = "聞き取り中...\n「65.5」のように話してください"; };
-      recognition.onend = () => { micBtn.classList.remove('recording-state'); micIcon.className = "fa-solid fa-microphone"; avatar.classList.remove('recording'); recognition = null; };
-      recognition.onresult = (event) => {
-        const text = event.results[0][0].transcript; const weight = cleanAndExtractNumber(text);
-        if (weight !== null) {
-          statusDiv.innerText = `音声認識: 「${text}」\n➔ 保存中...`;
-          sendToGas({ 
-            weight: weight, 
-            rybelsus: isRybelsusTaken, 
-            alcohol: isAlcoholTaken, 
-            timing: document.getElementById('timing').value,
-            activity: selectedActivity 
-          });
-        } else { statusDiv.innerText = `音声認識: 「${text}」\n⚠️数値が読み取れませんでした。`; }
-      };
-      recognition.start();
-    };
-
-    function speak(text) { if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'ja-JP'; window.speechSynthesis.speak(u); } }
-  </script>
-</body>
-</html>
+            <select id="edit-ac

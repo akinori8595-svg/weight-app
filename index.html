@@ -33,7 +33,6 @@
     button.toggle-btn.active-ry { background: #d1fae5; color: var(--primary-dark); font-weight: bold; border-color: var(--primary); }
     button.toggle-btn.active-al { background: #dbeafe; color: var(--alcohol-dark); font-weight: bold; border-color: var(--alcohol); }
     
-    /* 🏃 アクティビティ選択用の横スライド式おしゃれボタン */
     .activity-selector { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
     .activity-selector::-webkit-scrollbar { display: none; }
     .activity-chip { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 68px; height: 68px; border-radius: 14px; border: 1px solid var(--border); background: #f8fafc; cursor: pointer; transition: all 0.2s; gap: 4px; }
@@ -56,19 +55,41 @@
     .tab-btn.active { background: var(--primary-dark); color: #ffffff; font-weight: bold; border-color: var(--primary-dark); }
     
     .chart-container { position: relative; width: 100%; height: 210px; }
-    .history-list { max-height: 280px; overflow-y: auto; padding-right: 2px; }
-    .history-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px 14px; border-radius: 14px; margin-bottom: 8px; border: 1px solid var(--border); }
-    .item-main { display: flex; flex-direction: column; gap: 4px; }
+    .history-list { max-height: 340px; overflow-y: auto; padding-right: 2px; }
+    
+    /* 📋 履歴アイテムのレイアウトを編集機能向けに最適化 */
+    .history-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px 12px; border-radius: 14px; margin-bottom: 8px; border: 1px solid var(--border); transition: background 0.2s; }
+    .history-item.editing-mode { background: #fffdec; border-color: #f59e0b; flex-direction: column; align-items: stretch; gap: 10px; }
+    
+    .item-main { display: flex; flex-direction: column; gap: 4px; flex: 1; }
     .item-meta { font-size: 11px; color: var(--text-muted); }
     .item-tags { display: flex; gap: 4px; font-size: 10px; flex-wrap: wrap; }
     .tag-pill { background: #e2e8f0; color: var(--text-muted); padding: 2px 6px; border-radius: 5px; font-weight: 500; }
     .tag-pill.active-pill-ry { background: #d1fae5; color: var(--primary-dark); }
     .tag-pill.active-pill-al { background: #dbeafe; color: var(--alcohol-dark); }
     .tag-pill.active-pill-ac { background: #f3e8ff; color: var(--activity); }
-    .item-values { text-align: right; margin-right: 10px; margin-left: auto; }
-    .weight-val { font-size: 17px; font-weight: bold; color: var(--text); }
+    
+    .item-values { text-align: right; margin-right: 8px; margin-left: auto; }
+    .weight-val { font-size: 16px; font-weight: bold; color: var(--text); }
     .bmi-val { font-size: 11px; color: var(--text-muted); }
-    .delete-btn { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 15px; padding: 6px; }
+    
+    .action-btns { display: flex; gap: 2px; }
+    .action-btns button { background: none; border: none; cursor: pointer; font-size: 14px; padding: 6px; border-radius: 6px; }
+    .edit-btn { color: #64748b; }
+    .delete-btn { color: #cbd5e1; }
+    .delete-btn:hover { color: #ef4444; }
+
+    /* 🛠️ インライン編集フォーム用スタイル */
+    .edit-form-row { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    .edit-inputs { display: flex; flex-wrap: wrap; gap: 6px; }
+    .edit-inputs input, .edit-inputs select { padding: 6px 8px; font-size: 13px; border-radius: 8px; border: 1px solid #cbd5e1; background: #fff; outline: none; }
+    .edit-inputs input[type="datetime-local"] { font-size: 12px; flex: 1 1 100%; }
+    .edit-inputs input[type="number"] { width: 80px; font-weight: bold; }
+    .edit-inputs select { -webkit-appearance: auto; background-image: none; padding-right: 8px; }
+    .edit-form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+    .edit-form-actions button { padding: 6px 14px; font-size: 12px; font-weight: bold; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; }
+    .btn-save { background: #f59e0b; color: white; border-color: #d97706; }
+    .btn-cancel { background: #f1f5f9; color: var(--text-muted); }
   </style>
 </head>
 <body>
@@ -104,7 +125,6 @@
         </select>
       </div>
 
-      <!-- 🏃 前日のアクティビティ選択エリアを追加 -->
       <div class="param-group">
         <label><i class="fa-solid fa-person-running"></i> 前日のアクティビティ</label>
         <div class="activity-selector">
@@ -141,13 +161,12 @@
   </div>
 
   <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbwwHDFZ6rIUkVIpDdFCqUrwHcNCR4kI1547DfI1lQjOSf3UI_BwYMFpEBRjdQIm8SXNGQ/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzDfQC_gUAPGYJU4_AsF-it0dnbHVY2hrglsFIf16ZKAU9wf1JSpRF8mmcyiJP91EJopg/exec";
     const AI_AVATAR_FILENAME = "avatar.png"; 
 
-    let isRybelsusTaken = false; let isAlcoholTaken = false; let selectedActivity = "なし";
+    let isRybelsusTaken = false; let isAlcoholTaken = false; let selectedActivity = "none";
     let recognition = null; let rawData = []; let myChart = null;
 
-    // グラフ表示用の絵文字変換マップ
     const activityEmojis = { 'テニス': '🎾', 'バスケ': '🏀', 'ランニング': '🏃', 'ハイキング': '🥾', 'スキー': '⛷️', 'その他': '⭐', 'なし': '' };
 
     window.onload = () => { 
@@ -211,21 +230,128 @@
       fetch(GAS_URL).then(res => res.json()).then(data => { rawData = data; updateChart('day'); renderHistoryList(); }).catch(err => console.error("データ取得失敗:", err));
     }
 
+    // 📋 履歴リストの描画＋インライン編集切り替え処理
     function renderHistoryList() {
       const listDiv = document.getElementById('historyList');
       if (rawData.length === 0) { listDiv.innerText = "記録されたデータがありません。"; return; }
       let displayData = [...rawData].reverse().slice(0, 30); let html = '';
+      
       displayData.forEach(item => {
         let date = new Date(item.date);
+        // 日本時間の入力用フォーマット（YYYY-MM-DDTHH:MM）を生成
+        let localOffset = date.getTimezoneOffset() * 60000;
+        let localISOTime = new Date(date.getTime() - localOffset).toISOString().slice(0, 16);
+        
         let dateStr = `${date.getMonth()+1}/${date.getDate()} ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
         let ryPill = item.rybelsus === "服用" ? `<span class="tag-pill active-pill-ry">リベルサス</span>` : '';
         let alPill = item.alcohol === "晩酌あり" ? `<span class="tag-pill active-pill-al">晩酌あり</span>` : '';
-        // 🏃 履歴行にアクティビティタグを追加
         let acPill = (item.activity && item.activity !== "なし") ? `<span class="tag-pill active-pill-ac">${activityEmojis[item.activity] || ''} ${item.activity}</span>` : '';
         
-        html += `<div class="history-item"><div class="item-main"><div class="item-meta">${dateStr}</div><div class="item-tags"><span class="tag-pill">${item.timing}</span>${ryPill}${alPill}${acPill}</div></div><div class="item-values"><div class="weight-val">${item.weight.toFixed(1)}<span style="font-size:11px; font-weight:normal; color:var(--text-muted);"> kg</span></div><div class="bmi-val">BMI ${item.bmi.toFixed(1)}</div></div><button class="delete-btn" onclick="deleteRecord(${item.rowNum}, ${item.weight})"><i class="fa-solid fa-trash-can"></i></button></div>`;
+        html += `
+          <div class="history-item" id="item-${item.rowNum}">
+            <div class="item-view-container" style="display:flex; width:100%; align-items:center; justify-content:space-between;">
+              <div class="item-main">
+                <div class="item-meta">${dateStr}</div>
+                <div class="item-tags"><span class="tag-pill">${item.timing}</span>${ryPill}${alPill}${acPill}</div>
+              </div>
+              <div class="item-values">
+                <div class="weight-val">${item.weight.toFixed(1)}<span style="font-size:11px; font-weight:normal; color:var(--text-muted);"> kg</span></div>
+                <div class="bmi-val">BMI ${item.bmi.toFixed(1)}</div>
+              </div>
+              <div class="action-btns">
+                <button class="edit-btn" onclick="startEdit(${item.rowNum}, '${localISOTime}', ${item.weight}, '${item.timing}', '${item.rybelsus}', '${item.alcohol}', '${item.activity}')" title="編集"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button class="delete-btn" onclick="deleteRecord(${item.rowNum}, ${item.weight})" title="削除"><i class="fa-solid fa-trash-can"></i></button>
+              </div>
+            </div>
+          </div>`;
       });
       listDiv.innerHTML = html;
+    }
+
+    // ✏️ 編集モードの開始
+    function startEdit(rowNum, dateStr, weight, timing, rybelsus, alcohol, activity) {
+      const itemDiv = document.getElementById(`item-${rowNum}`);
+      itemDiv.classList.add('editing-mode');
+      
+      // 服用ステータス等の初期設定補正
+      if(rybelsus !== "服用") rybelsus = "なし";
+      if(alcohol !== "晩酌あり") alcohol = "なし";
+
+      itemDiv.innerHTML = `
+        <div class="edit-form-row">
+          <div style="font-size:11px; font-weight:bold; color:#d97706;"><i class="fa-solid fa-pen-to-square"></i> データを編集中（行: ${rowNum}）</div>
+          <div class="edit-inputs">
+            <input type="datetime-local" id="edit-date-${rowNum}" value="${dateStr}">
+            <input type="number" id="edit-weight-${rowNum}" value="${weight}" step="0.1" placeholder="kg">
+            
+            <select id="edit-timing-${rowNum}">
+              <option value="朝 (空腹)" ${timing==='朝 (空腹)'?'selected':''}>朝 (空腹)</option>
+              <option value="朝食後" ${timing==='朝食後'?'selected':''}>朝食後</option>
+              <option value="昼" ${timing==='昼'?'selected':''}>昼</option>
+              <option value="夕食前" ${timing==='夕食前'?'selected':''}>夕食前</option>
+              <option value="夕食後" ${timing==='夕食後'?'selected':''}>夕食後</option>
+              <option value="夜 (入浴前)" ${timing==='夜 (入浴前)'?'selected':''}>夜 (入浴前)</option>
+              <option value="夜 (入浴後)" ${timing==='夜 (入浴後)'?'selected':''}>夜 (入浴後)</option>
+            </select>
+            
+            <select id="edit-ry-${rowNum}">
+              <option value="服用" ${rybelsus==='服用'?'selected':''}>💊 服用</option>
+              <option value="なし" ${rybelsus==='なし'?'selected':''}>なし</option>
+            </select>
+            
+            <select id="edit-al-${rowNum}">
+              <option value="晩酌あり" ${alcohol==='晩酌あり'?'selected':''}>🍺 晩酌あり</option>
+              <option value="なし" ${alcohol==='なし'?'selected':''}>なし</option>
+            </select>
+            
+            <select id="edit-ac-${rowNum}">
+              <option value="なし" ${activity==='なし'?'selected':''}>🏃 なし</option>
+              <option value="テニス" ${activity==='テニス'?'selected':''}>🎾 テニス</option>
+              <option value="バスケ" ${activity==='バスケ'?'selected':''}>🏀 バスケ</option>
+              <option value="ランニング" ${activity==='ランニング'?'selected':''}>🏃 ラン</option>
+              <option value="ハイキング" ${activity==='ハイキング'?'selected':''}>🥾 ハイク</option>
+              <option value="スキー" ${activity==='スキー'?'selected':''}>⛷️ スキー</option>
+              <option value="その他" ${activity==='その他'?'selected':''}>⭐ その他</option>
+            </select>
+          </div>
+          <div class="edit-form-actions">
+            <button class="btn-cancel" onclick="fetchChartData()">キャンセル</button>
+            <button class="btn-save" onclick="saveEdit(${rowNum})">保存する</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // 💾 編集データの送信処理
+    function saveEdit(rowNum) {
+      const dateVal = document.getElementById(`edit-date-${rowNum}`).value;
+      const weightVal = parseFloat(document.getElementById(`edit-weight-${rowNum}`).value);
+      const timingVal = document.getElementById(`edit-timing-${rowNum}`).value;
+      const ryVal = document.getElementById(`edit-ry-${rowNum}`).value;
+      const alVal = document.getElementById(`edit-al-${rowNum}`).value;
+      const acVal = document.getElementById(`edit-ac-${rowNum}`).value;
+
+      if (!dateVal || isNaN(weightVal)) { alert("日付と体重を正しく入力してください。"); return; }
+
+      document.getElementById(`item-${rowNum}`).innerText = "更新中...";
+
+      const updatePayload = {
+        type: "update",
+        rowNum: rowNum,
+        date: new Date(dateVal).toISOString(),
+        weight: weightVal,
+        timing: timingVal,
+        rybelsus: ryVal,
+        alcohol: alVal,
+        activity: acVal
+      };
+
+      fetch(GAS_URL, { method: "POST", body: JSON.stringify(updatePayload) })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success") { fetchChartData(); } else { alert("更新失敗: " + data.message); fetchChartData(); }
+      })
+      .catch(err => { alert("通信エラーが発生しました"); fetchChartData(); });
     }
 
     function deleteRecord(rowNum, weight) {
@@ -245,24 +371,23 @@
         let recentData = sortedData.slice(-14); 
         labels = recentData.map(d => { let date = new Date(d.date); return `${date.getMonth()+1}/${date.getDate()}`; }); 
         weights = recentData.map(d => d.weight);
-        activities = recentData.map(d => d.activity || "なし"); // 日毎のアクティビティを取得
+        activities = recentData.map(d => d.activity || "なし");
       } else if (period === 'week') {
         let weeks = {}; sortedData.forEach(d => { let date = new Date(d.date); let weekKey = getWeekNumber(date); if (!weeks[weekKey]) weeks[weekKey] = { sum: 0, count: 0, label: `${date.getMonth()+1}/${date.getDate()}週` }; weeks[weekKey].sum += d.weight; weeks[weekKey].count++; });
         let keys = Object.keys(weeks).slice(-8); labels = keys.map(k => weeks[k].label); weights = keys.map(k => (weeks[k].sum / weeks[k].count).toFixed(1));
-        activities = keys.map(() => "なし"); // 週表示ではアイコン非表示
+        activities = keys.map(() => "なし");
       } else if (period === 'month') {
         let months = {}; sortedData.forEach(d => { let date = new Date(d.date); let monthKey = `${date.getFullYear()}-${date.getMonth()+1}`; if (!months[monthKey]) months[monthKey] = { sum: 0, count: 0, label: `${date.getMonth()+1}月` }; months[monthKey].sum += d.weight; months[monthKey].count++; });
         let keys = Object.keys(months).slice(-6); labels = keys.map(k => months[k].label); weights = keys.map(k => (months[k].sum / months[k].count).toFixed(1));
-        activities = keys.map(() => "なし"); // 月表示ではアイコン非表示
+        activities = keys.map(() => "なし");
       }
       
       const ctx = document.getElementById('weightChart').getContext('2d'); if (myChart) myChart.destroy();
       
-      // 🔥【大技ギミック】Chart.jsのドットの上にアクティビティの絵文字（アイコン）を描画するプラグイン
       const iconPlugin = {
         id: 'iconPlugin',
         afterDatasetsDraw(chart) {
-          const { ctx, scales: { x, y } } = chart;
+          const { ctx } = chart;
           chart.data.datasets[0].data.forEach((value, index) => {
             const act = chart.data.datasets[0].activities[index];
             if (act && act !== 'なし') {
@@ -270,13 +395,8 @@
               const meta = chart.getDatasetMeta(0);
               const point = meta.data[index];
               if (point) {
-                ctx.save();
-                ctx.font = '14px Arial';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'bottom';
-                // 点の少し上(y - 8)に絵文字を描画
-                ctx.fillText(emoji, point.x, point.y - 8);
-                ctx.restore();
+                ctx.save(); ctx.font = '14px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+                ctx.fillText(emoji, point.x, point.y - 8); ctx.restore();
               }
             }
           });
@@ -290,26 +410,18 @@
           datasets: [{ 
             label: '体重 (kg)', 
             data: weights, 
-            activities: activities, // 👈 カスタムデータを追加
+            activities: activities, 
             borderColor: '#10b981', 
             backgroundColor: 'rgba(52, 211, 153, 0.15)', 
             borderWidth: 3, 
             fill: true, 
             tension: 0.3, 
-            pointRadius: (period === 'day') ? 5 : 4, // 日単位の時は少しドットを大きく
+            pointRadius: (period === 'day') ? 5 : 4, 
             pointBackgroundColor: '#10b981' 
           }] 
         }, 
-        options: { 
-          responsive: true, 
-          maintainAspectRatio: false, 
-          plugins: { legend: { display: false } }, 
-          scales: { 
-            y: { grid: { color: '#f1f5f9' }, ticks: { color: '#64748b' }, grace: '5%' }, 
-            x: { grid: { display: false }, ticks: { color: '#64748b' } } 
-          } 
-        },
-        plugins: [iconPlugin] // 👈 ギミックプラグインを登録
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#f1f5f9' }, ticks: { color: '#64748b' }, grace: '5%' }, x: { grid: { display: false }, ticks: { color: '#64748b' } } } },
+        plugins: [iconPlugin]
       });
     }
 
@@ -319,8 +431,7 @@
     const resultDiv = document.getElementById('result');
 
     micBtn.onclick = (e) => {
-      e.preventDefault();
-      if (recognition) { recognition.stop(); return; }
+      e.preventDefault(); if (recognition) { recognition.stop(); return; }
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) { statusDiv.innerText = "ブラウザ非対応"; return; }
       
@@ -336,14 +447,14 @@
             rybelsus: isRybelsusTaken, 
             alcohol: isAlcoholTaken, 
             timing: document.getElementById('timing').value,
-            activity: selectedActivity // 👈 新パラメーターを送信
+            activity: selectedActivity 
           });
         } else { statusDiv.innerText = `音声認識: 「${text}」\n⚠️数値が読み取れませんでした。`; }
       };
       recognition.start();
     };
 
-    function speak(text) { if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); const u = new SynthesisUtterance(text); u.lang = 'ja-JP'; window.speechSynthesis.speak(u); } }
+    function speak(text) { if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'ja-JP'; window.speechSynthesis.speak(u); } }
   </script>
 </body>
 </html>
